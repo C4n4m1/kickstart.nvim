@@ -108,7 +108,7 @@ return {
       --     },
       --})
       substitute = {
-        enabled = false,
+        enabled = true,
 
         -- Can also be a table. Refer to overwrite.search for more information
         default_animation = 'fade',

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+full_path="$1"
+filename_ext=$(basename "$full_path")
+
+filename="${filename_ext%.*}"
+extension="${filename_ext##*.}"
+
+echo "[running $filename_ext]"
+
+if [[ "$extension" == "c" ]]; then
+    clang -std=c99 -Wall -lm "$full_path" && ./a.out;
+elif [[ "$extension" == "py" ]]; then
+    python "$full_path";
+elif [[ "$extension" == "sh" ]]; then
+    sh "$full_path";
+elif [[ "$extension" == "pas" ]]; then
+    fpc "$full_path" && ./"$filename"
+elif [[ "$extension" == "java" ]]; then
+
+    if [[ ! -f  ~/.local/share/runners_data/"$filename_ext" ]]; then
+        javac "$filename_ext" && java -cp . "$filename_ext"
+        cp "$filename_ext"  ~/.local/share/runners_data/"$filename_ext"
+    else
+        if diff "$filename_ext" ~/.local/share/runners_data/"$filename_ext" > /dev/null; then
+            java -cp . "$filename_ext"
+        else
+            javac "$filename_ext" && java -cp . "$filename_ext"
+            cp "$filename_ext"  ~/.local/share/runners_data/"$filename_ext"
+        fi
+    fi
+elif [[ "$extension" == "zig" ]]; then 
+    # if [[ -f "$filename" ]]; then
+    #     ./"$filename"
+    # else
+        zig build-exe "$filename_ext" && ./"$filename"
+    # fi
+else
+    echo "no"
+fi

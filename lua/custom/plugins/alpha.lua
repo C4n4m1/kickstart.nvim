@@ -6,6 +6,7 @@ return {
       -- Alpha.nvim configuration
       local alpha = require 'alpha'
       local dashboard = require 'alpha.themes.dashboard'
+      -- local ascii = require 'ascii'
 
       dashboard.section.header.val = {
         '███    ██ ███████  ██████  ██    ██ ██ ███    ███ ',

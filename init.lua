@@ -6,9 +6,39 @@ vim.opt.termguicolors = true
 vim.g.have_nerd_font = true
 
 -- See `:help vim.opt`
+--  border on floating window
 vim.opt.winborder = 'rounded'
+-- keymap for ctrl tab behavior
+vim.keymap.set('n', '<leader><leader>', ':bprevious<CR>', { desc = ' [_] Open previous buffer ' })
+
+-- OIL.NVIM keybind
+vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Parent repository' })
+
 vim.opt.number = true
 vim.opt.relativenumber = true
+
+-- The famous runner to eexecute any script with just one keypam !
+vim.keymap.set('n', '<leader><CR>', ':terminal /home/credo/runner.sh %<CR>', { desc = ' run code' })
+-- open the terminal in insert mode
+vim.api.nvim_create_autocmd('TermOpen', {
+  pattern = '*',
+  command = 'startinsert',
+})
+
+-- FISH LSP CONFIG --
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'fish',
+  callback = function()
+    vim.lsp.start {
+      name = 'fish-lsp',
+      cmd = { 'fish-lsp', 'start' },
+      cmd_env = { fish_lsp_show_client_popups = false },
+    }
+  end,
+})
+
+-- More LSP keymaps --
+vim.keymap.set('n', '<leader>cd', vim.lsp.buf.rename, { desc = 'LSP Rename Symbol' })
 
 vim.opt.mouse = 'a'
 
@@ -112,6 +142,12 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   end
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
+
+local file = 'config.statusline'
+local success = pcall(require, file)
+if not success then
+  vim.notify('Failed to load a config file ' .. vim.log.levels.ERROR)
+end
 
 -- [[ Configure and install plugins ]]
 --    :Lazy update
@@ -293,7 +329,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>s.', builtin.resume, { desc = '[S]earch [.]resume' })
       vim.keymap.set('n', '<leader>sr', builtin.oldfiles, { desc = '[S]earch [R]ecent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -728,20 +764,126 @@ require('lazy').setup({
     -- end,
 
     -- VAGUE
-    'vague2k/vague.nvim',
+    -- 'vague2k/vague.nvim',
+    -- priority = 1000,
+    -- config = function()
+    --   require('vague').setup {
+    --     transparent = true,
+    --     style = {
+    --       functions = 'bold',
+    --     },
+    --   }
+    --   -- Add any theme-specific options here
+    --   vim.cmd 'colorscheme vague'
+    -- end,
+    --
+    --
+    -- TOKYO NIGHT
+    --   'folke/tokyonight.nvim',
+    --   lazy = false,
+    --   priority = 1000,
+    --   config = function()
+    --     require('tokyonight').setup {
+    --       transparent = true,
+    --       -- style = {
+    --       --   functions = { italic = true, bold = true },
+    --       -- },
+    --     }
+    --     vim.cmd 'colorscheme tokyonight'
+    --   end,
+    --
+    --
+    --   NORD
+    -- Colored version : NORDIC
+
+    -- 'AlexvZyl/nordic.nvim',
+    -- lazy = false,
+    -- priority = 1000,
+    -- config = function()
+    --   require('nordic').setup {
+    --     italic_comments = true,
+    --     transparent = {
+    --       bg = true,
+    --       float = true,
+    --     },
+    --     -- telescope = 'classic',
+    --   }
+    --   vim.cmd.colorscheme 'nordic'
+    -- end,
+
+    -- OLDWORLD
+    'dgox16/oldworld.nvim',
+    lazy = false,
     priority = 1000,
     config = function()
-      require('vague').setup {
-        transparent = true,
-        style = {
-          functions = 'bold',
+      require('oldworld').setup {
+        variant = 'oled',
+        styles = {
+          comments = { italic = true },
+          functions = { italic = true, bold = true },
+        },
+        highlight_overrides = {
+          -- Comments
+          Comment = { fg = '#5d797c' },
+          -- Booleans
+          Boolean = { fg = '#E6B99D' },
+          -- Constants
+          Constant = { fg = '#F5A191' },
+          -- Constructors
+          Constructor = { fg = '#EA83A5' },
+          -- Emphasis (mapped to Italic groups if applicable, but ignoring styles)
+          -- Functions
+          Function = { fg = '#92A2D5' },
+          -- Keywords
+          Keyword = { fg = '#E29ECA' },
+          -- Labels
+          Label = { fg = '#c0caf5' },
+          -- Links (text and uri)
+          -- No direct standard highlight group, can be linked to 'Underlined' or custom
+          -- Numbers
+          Number = { fg = '#F5A191' },
+          -- Operators
+          Operator = { fg = '#92A2D5' },
+          -- Preprocessor
+          PreProc = { fg = '#73daca' },
+          -- Punctuation (and subtypes)
+          Delimiter = { fg = '#8dc1d5' },
+          -- Strings and related
+          String = { fg = '#90B99F' },
+          -- Tags
+          Tag = { fg = '#EA83A5' },
+          -- Titles
+          Title = { fg = '#F5A191' },
+          -- Types
+          Type = { fg = '#70a6b0' },
+          -- Variables
+          Identifier = { fg = '#ACA1CF' },
+          Variable = { fg = '#ACA1CF' },
+          -- Special variables
+          Special = { fg = '#EA83A5' },
         },
       }
-      -- Add any theme-specific options here
-      vim.cmd 'colorscheme vague'
+      vim.cmd.colorscheme 'oldworld'
+      -- -- for built‑in syntax
+      -- vim.api.nvim_set_hl(0, 'Comment', { italic = true })
+      -- vim.api.nvim_set_hl(0, 'Function', { bold = true, italic = true })
+      --
+      -- -- if you use Tree‑sitter
+      -- vim.api.nvim_set_hl(0, '@comment', { italic = true })
+      -- vim.api.nvim_set_hl(0, '@function', { bold = true, italic = true })
     end,
     --
-    --
+    -- ANOTHER ONE XD KANAGAWA
+    -- 'rebelot/kanagawa.nvim',
+    -- lazy = false,
+    -- priority = 1000,
+    -- config = function()
+    --   require('kanagawa').setup {
+    --     commentStyle = { italic = true },
+    --     transparent = true,
+    --   }
+    --   vim.cmd 'colorscheme kanagawa'
+    -- end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -752,19 +894,6 @@ require('lazy').setup({
     config = function()
       -- Better Around/Inside textobjects
       require('mini.ai').setup { n_lines = 500 }
-
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
-
-      -- Simple and easy statusline.
-      --  You could remove this setup call if you don't like it,
-      --  and try some other statusline plugin
-      --
-      -- USELESS CAUSE WE USE LUALINE
-
-      --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -801,7 +930,7 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
