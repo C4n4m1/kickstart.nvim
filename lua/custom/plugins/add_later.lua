@@ -1,0 +1,3 @@
+plugins = {
+  'undo_tree',
+}

@@ -15,8 +15,19 @@ vim.keymap.set('n', '<leader><leader>', ':bprevious<CR>', { desc = ' [_] Open pr
 vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Parent repository' })
 
 -- Transparency
-vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
-vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = function()
+    vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'LineNr', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'Folded', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'VertSplit', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'StatusLine', { bg = 'none' })
+  end,
+})
 
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -821,7 +832,7 @@ require('lazy').setup({
     priority = 1000,
     config = function()
       require('oldworld').setup {
-        variant = 'transparent',
+        variant = 'default',
         styles = {
           comments = { italic = true },
           functions = { italic = true, bold = true },
@@ -868,13 +879,6 @@ require('lazy').setup({
         },
       }
       vim.cmd.colorscheme 'oldworld'
-      -- -- for built‑in syntax
-      -- vim.api.nvim_set_hl(0, 'Comment', { italic = true })
-      -- vim.api.nvim_set_hl(0, 'Function', { bold = true, italic = true })
-      --
-      -- -- if you use Tree‑sitter
-      -- vim.api.nvim_set_hl(0, '@comment', { italic = true })
-      -- vim.api.nvim_set_hl(0, '@function', { bold = true, italic = true })
     end,
     --
     -- ANOTHER ONE XD KANAGAWA
