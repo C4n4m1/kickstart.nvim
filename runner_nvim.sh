@@ -35,6 +35,10 @@ elif [[ "$extension" == "zig" ]]; then
     # else
         zig build-exe "$filename_ext" && ./"$filename"
     # fi
+elif [[ "$extension" == "php" ]]; then
+    xdg-open "http://localhost${full_path##/srv/http}"
+elif [[ "$extension" == "html" ]]; then
+    xdg-open "$full_path"
 else
     echo "no"
 fi

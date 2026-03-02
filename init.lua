@@ -14,11 +14,15 @@ vim.keymap.set('n', '<leader><leader>', ':bprevious<CR>', { desc = ' [_] Open pr
 -- OIL.NVIM keybind
 vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Parent repository' })
 
+-- Transparency
+vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
+vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+
 vim.opt.number = true
 vim.opt.relativenumber = true
 
 -- The famous runner to eexecute any script with just one keypam !
-vim.keymap.set('n', '<leader><CR>', ':terminal /home/credo/runner.sh %<CR>', { desc = ' run code' })
+vim.keymap.set('n', '<leader><CR>', ':terminal /home/credo/runner.sh % "%:p" <CR>', { desc = ' run code' })
 -- open the terminal in insert mode
 vim.api.nvim_create_autocmd('TermOpen', {
   pattern = '*',
@@ -38,7 +42,7 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- More LSP keymaps --
-vim.keymap.set('n', '<leader>cd', vim.lsp.buf.rename, { desc = 'LSP Rename Symbol' })
+vim.keymap.set('n', 'cd', vim.lsp.buf.rename, { desc = 'LSP Rename Symbol' })
 
 vim.opt.mouse = 'a'
 
@@ -817,7 +821,7 @@ require('lazy').setup({
     priority = 1000,
     config = function()
       require('oldworld').setup {
-        variant = 'oled',
+        variant = 'transparent',
         styles = {
           comments = { italic = true },
           functions = { italic = true, bold = true },
@@ -851,7 +855,7 @@ require('lazy').setup({
           -- Strings and related
           String = { fg = '#90B99F' },
           -- Tags
-          Tag = { fg = '#EA83A5' },
+          Tag = { fg = '#92A2D5' },
           -- Titles
           Title = { fg = '#F5A191' },
           -- Types

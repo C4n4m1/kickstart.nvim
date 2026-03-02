@@ -11,19 +11,19 @@ return {
   },
   cmd = 'Neotree',
   keys = {
-    -- { '<leader>e', ':Neotree reveal<CR>', desc = '[E]NeoTree reveal' },
+    { '<leader>e', ':Neotree reveal<CR>', desc = '[E]NeoTree reveal' },
     -- vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
   },
   opts = {
-    -- filesystem = {
-    --   window = {
-    --     mappings = {
-    --       ['<leader>e'] = 'close_window',
-    --       ['<CR>'] = 'toggle_node',
-    --       ['n'] = 'add',
-    --       ['<CR>'] = 'open',
-    --     },
-    --   },
-    -- },
+    filesystem = {
+      window = {
+        mappings = {
+          ['<leader>e'] = 'close_window',
+          ['<CR>'] = 'toggle_node',
+          ['n'] = 'add',
+          ['<CR>'] = 'open',
+        },
+      },
+    },
   },
 }
