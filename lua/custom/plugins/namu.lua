@@ -23,7 +23,7 @@ return {
       desc = 'Jump to LSP symbol',
       silent = true,
     })
-    vim.keymap.set('n', '<leader>th', ':Namu colorscheme<cr>', {
+    vim.keymap.set('n', '<leader>tt', ':Namu colorscheme<cr>', {
       desc = 'Colorscheme Picker',
       silent = true,
     })

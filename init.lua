@@ -8,19 +8,13 @@ vim.g.have_nerd_font = true
 -- See `:help vim.opt`
 --  border on floating window
 vim.opt.winborder = 'rounded'
--- keymap for ctrl tab behavior
-vim.keymap.set('n', '<leader><leader>', ':bprevious<CR>', { desc = ' [_] Open previous buffer ' })
-
--- OIL.NVIM keybind
-vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Parent repository' })
+require 'custom.keymap'
 
 -- Transparency
 vim.api.nvim_create_autocmd('VimEnter', {
   callback = function()
     vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
-    vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
-    vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
-    vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
+    -- vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'LineNr', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'Folded', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'none' })
@@ -33,8 +27,28 @@ vim.api.nvim_create_autocmd('VimEnter', {
   end,
 })
 
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+
 vim.opt.number = true
 vim.opt.relativenumber = true
+
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+
+-- auto switch for classic line number in insert mode
+vim.api.nvim_create_autocmd({ 'InsertEnter', 'InsertLeave' }, {
+  pattern = '*',
+  callback = function(args)
+    if args.event == 'InsertEnter' then
+      vim.opt.relativenumber = false
+    else
+      vim.opt.relativenumber = true
+    end
+  end,
+})
 
 -- The famous runner to eexecute any script with just one keypam !
 vim.keymap.set('n', '<leader><CR>', ':terminal /home/credo/runner.sh % "%:p" <CR>', { desc = ' run code' })
@@ -55,9 +69,6 @@ vim.api.nvim_create_autocmd('FileType', {
     }
   end,
 })
-
--- More LSP keymaps --
-vim.keymap.set('n', 'cd', vim.lsp.buf.rename, { desc = 'LSP Rename Symbol' })
 
 vim.opt.mouse = 'a'
 
@@ -101,7 +112,7 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 8
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -168,36 +179,8 @@ if not success then
   vim.notify('Failed to load a config file ' .. vim.log.levels.ERROR)
 end
 
--- [[ Configure and install plugins ]]
---    :Lazy update
---
--- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
-
-  -- NOTE: Plugins can also be added by using a table,
-  -- with the first argument being the link and the following
-  -- keys can be used to configure plugin behavior/loading/etc.
-  --
-  -- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
-  --
-
-  -- Alternatively, use `config = function() ... end` for full control over the configuration.
-  -- If you prefer to call `setup` explicitly, use:
-  --    {
-  --        'lewis6991/gitsigns.nvim',
-  --        config = function()
-  --            require('gitsigns').setup({
-  --                -- Your gitsigns configuration here
-  --            })
-  --        end,
-  --    }
-  --
-  -- Here is a more advanced example where we pass configuration
-  -- options to `gitsigns.nvim`.
-  --
-  -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -342,6 +325,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set({ 'n', 'v' }, '<C-p>', builtin.find_files, { desc = 'Search files' })
       vim.keymap.set('n', '<leader>st', builtin.builtin, { desc = '[S]earch Select [T]elescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -457,19 +441,7 @@ require('lazy').setup({
         -- gopls = {},
         pyright = {},
         jdtls = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-
         lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
           settings = {
             Lua = {
               completion = {
@@ -487,36 +459,6 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-      local servers = {
-        clangd = {},
-        -- gopls = {},
-        pyright = {},
-        jdtls = {},
-        -- rust_analyzer = {},
-        -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-        --
-        -- Some languages (like typescript) have entire language plugins that can be useful:
-        --    https://github.com/pmizio/typescript-tools.nvim
-        --
-        -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
-
-        lua_ls = {
-          -- cmd = { ... },
-          -- filetypes = { ... },
-          -- capabilities = {},
-          settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              diagnostics = { disable = { 'missing-fields' } },
-            },
-          },
-        },
-      }
 
       -- You can press `g?` for help in this menu.
       -- `mason` had to be setup earlier: to configure its options see the
@@ -579,121 +521,6 @@ require('lazy').setup({
       },
     },
   },
-
-  -- { -- Autocompletion
-  --   'hrsh7th/nvim-cmp',
-  --   event = 'InsertEnter',
-  --   dependencies = {
-  --     -- Snippet Engine & its associated nvim-cmp source
-  --     {
-  --       'L3MON4D3/LuaSnip',
-  --       build = (function()
-  --         -- Build Step is needed for regex support in snippets.
-  --         -- This step is not supported in many windows environments.
-  --         -- Remove the below condition to re-enable on windows.
-  --         if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-  --           return
-  --         end
-  --         return 'make install_jsregexp'
-  --       end)(),
-  --       dependencies = {
-  --         -- `friendly-snippets` contains a variety of premade snippets.
-  --         --    See the README about individual language/framework/plugin snippets:
-  --         --    https://github.com/rafamadriz/friendly-snippets
-  --         -- {
-  --         --   'rafamadriz/friendly-snippets',
-  --         --   config = function()
-  --         --     require('luasnip.loaders.from_vscode').lazy_load()
-  --         --   end,
-  --         -- },
-  --       },
-  --     },
-  --     'saadparwaiz1/cmp_luasnip',
-  --
-  --     --  nvim-cmp does not ship with all sources by default. They are split
-  --     --  into multiple repos for maintenance purposes.
-  --     'hrsh7th/cmp-nvim-lsp',
-  --     'hrsh7th/cmp-path',
-  --     'hrsh7th/cmp-nvim-lsp-signature-help',
-  --   },
-  --   config = function()
-  --     -- See `:help cmp`
-  --     local cmp = require 'cmp'
-  --     local luasnip = require 'luasnip'
-  --     luasnip.config.setup {}
-  --
-  --     cmp.setup {
-  --       snippet = {
-  --         expand = function(args)
-  --           luasnip.lsp_expand(args.body)
-  --         end,
-  --       },
-  --       completion = { completeopt = 'menu,menuone,noinsert' },
-  --
-  --       --
-  --       -- No, but seriously. Please read `:help ins-completion`, it is really good!
-  --       mapping = cmp.mapping.preset.insert {
-  --         -- Select the [n]ext item
-  --         ['<C-n>'] = cmp.mapping.select_next_item(),
-  --         -- Select the [p]revious item
-  --         ['<C-p>'] = cmp.mapping.select_prev_item(),
-  --
-  --         -- Scroll the documentation window [b]ack / [f]orward
-  --         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-  --         ['<C-f>'] = cmp.mapping.scroll_docs(4),
-  --
-  --         -- Accept ([y]es) the completion.
-  --         --  This will auto-import if your LSP supports it.
-  --         --  This will expand snippets if the LSP sent a snippet.
-  --         ['<C-y>'] = cmp.mapping.confirm { select = true },
-  --
-  --         -- If you prefer more traditional completion keymaps,
-  --         -- you can uncomment the following lines
-  --         ['<CR>'] = cmp.mapping.confirm { select = true },
-  --         ['<Tab>'] = cmp.mapping.select_next_item(),
-  --         ['<S-Tab>'] = cmp.mapping.select_prev_item(),
-  --
-  --         -- Manually trigger a completion from nvim-cmp.
-  --         --  Generally you don't need this, because nvim-cmp will display
-  --         --  completions whenever it has completion options available.
-  --         ['<C-Space>'] = cmp.mapping.complete {},
-  --
-  --         -- Think of <c-l> as moving to the right of your snippet expansion.
-  --         --  So if you have a snippet that's like:
-  --         --  function $name($args)
-  --         --    $body
-  --         --  end
-  --         --
-  --         -- <c-l> will move you to the right of each of the expansion locations.
-  --         -- <c-h> is similar, except moving you backwards.
-  --         ['<C-l>'] = cmp.mapping(function()
-  --           if luasnip.expand_or_locally_jumpable() then
-  --             luasnip.expand_or_jump()
-  --           end
-  --         end, { 'i', 's' }),
-  --         ['<C-h>'] = cmp.mapping(function()
-  --           if luasnip.locally_jumpable(-1) then
-  --             luasnip.jump(-1)
-  --           end
-  --         end, { 'i', 's' }),
-  --
-  --         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-  --         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
-  --       },
-  --       sources = {
-  --         {
-  --           name = 'lazydev',
-  --           -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
-  --           group_index = 0,
-  --         },
-  --         { name = 'nvim_lsp' },
-  --         { name = 'luasnip' },
-  --         { name = 'path' },
-  --         { name = 'nvim_lsp_signature_help' },
-  --       },
-  --     }
-  --   end,
-  -- },
 
   {
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
@@ -811,18 +638,6 @@ require('lazy').setup({
       }
       vim.cmd.colorscheme 'oldworld'
     end,
-    --
-    -- ANOTHER ONE XD KANAGAWA
-    -- 'rebelot/kanagawa.nvim',
-    -- lazy = false,
-    -- priority = 1000,
-    -- config = function()
-    --   require('kanagawa').setup {
-    --     commentStyle = { italic = true },
-    --     transparent = true,
-    --   }
-    --   vim.cmd 'colorscheme kanagawa'
-    -- end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -869,7 +684,7 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   require 'kickstart.plugins.debug',
-  require 'kickstart.plugins.indent_line',
+  -- require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
