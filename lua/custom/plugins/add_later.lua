@@ -1,3 +1,1 @@
-plugins = {
-  'undo_tree',
-}
+return {}
