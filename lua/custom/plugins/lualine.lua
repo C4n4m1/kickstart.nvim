@@ -1,7 +1,7 @@
 return {
   {
     'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'nvim-tree/nvim-web-devicons', 'SmiteshP/nvim-navic' },
     config = function()
       local colors = {
         black = '#070709',
@@ -48,15 +48,19 @@ return {
       require('lualine').setup {
         options = {
           theme = theme,
-          -- component_separators = { left = '', right = '' },
-          -- section_separators = { left = '', right = '' },
           component_separators = { left = '', right = '' },
           section_separators = { left = '', right = '' },
         },
         sections = {
           lualine_a = { 'mode' },
           lualine_b = { 'branch', 'diff', 'diagnostics' },
-          lualine_c = {},
+          lualine_c = {
+            {
+              'navic',
+              color_correction = 'static',
+              navic_opts = {},
+            },
+          },
           lualine_x = { 'filename' },
           lualine_y = { 'progress', 'location' },
           lualine_z = { 'filetype' },

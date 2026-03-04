@@ -7,7 +7,7 @@ vim.g.have_nerd_font = true
 
 -- See `:help vim.opt`
 --  border on floating window
-vim.opt.winborder = 'rounded'
+-- vim.opt.winborder = 'rounded'
 require 'custom.keymap'
 
 -- Transparency
@@ -19,11 +19,46 @@ vim.api.nvim_create_autocmd('VimEnter', {
     vim.api.nvim_set_hl(0, 'Folded', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'SignColumn', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'VertSplit', { bg = 'none' })
-    vim.api.nvim_set_hl(0, 'StatusLine', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'WinBar', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'WinBarNC', { bg = 'none' })
 
     -- Gutter line number colors
     vim.api.nvim_set_hl(0, 'LineNr', { fg = '#505050', bg = 'none' })
     vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#eeeeee', bg = 'none', bold = true })
+
+    -- Navic colors for breadcrumbs customization
+    local navic_icon_fg = '#808080'
+    local navic_text_fg = '#646464'
+    local navic_sep_fg = '#404040'
+
+    vim.api.nvim_set_hl(0, 'NavicIconsFile', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsModule', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsNamespace', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsPackage', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsClass', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsMethod', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsProperty', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsField', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsConstructor', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsEnum', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsInterface', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsFunction', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsVariable', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsConstant', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsString', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsNumber', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsBoolean', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsArray', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsObject', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsKey', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsNull', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsEnumMember', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsStruct', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsEvent', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsOperator', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicIconsTypeParameter', { bg = '#151518', fg = navic_icon_fg })
+    vim.api.nvim_set_hl(0, 'NavicText', { bg = '#151518', fg = navic_text_fg })
+    vim.api.nvim_set_hl(0, 'NavicSeparator', { bg = '#151518', fg = navic_sep_fg })
   end,
 })
 
@@ -329,6 +364,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>st', builtin.builtin, { desc = '[S]earch Select [T]elescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<C-S-F>', builtin.live_grep, { desc = 'search in projects' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>s.', builtin.resume, { desc = '[S]earch [.]resume' })
       vim.keymap.set('n', '<leader>sr', builtin.oldfiles, { desc = '[S]earch [R]ecent Files ("." for repeat)' })
@@ -405,6 +441,47 @@ require('lazy').setup({
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+          if client and client.server_capabilities.documentSymbolProvider then
+            local ok, navic = pcall(require, 'nvim-navic')
+            if ok then
+              navic.attach(client, event.buf)
+              -- Navic colors for breadcrumbs customization
+              local navic_icon_fg = '#808080'
+              local navic_text_fg = '#646464'
+              local navic_sep_fg = '#404040'
+
+              vim.api.nvim_set_hl(0, 'NavicIconsFile', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsModule', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsNamespace', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsPackage', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsClass', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsMethod', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsProperty', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsField', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsConstructor', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsEnum', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsInterface', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsFunction', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsVariable', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsConstant', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsString', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsNumber', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsBoolean', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsArray', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsObject', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsKey', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsNull', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsEnumMember', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsStruct', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsEvent', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsOperator', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicIconsTypeParameter', { bg = '#151518', fg = navic_icon_fg })
+              vim.api.nvim_set_hl(0, 'NavicText', { bg = '#151518', fg = navic_text_fg })
+              vim.api.nvim_set_hl(0, 'NavicSeparator', { bg = '#151518', fg = navic_sep_fg })
+            end
+          end
+
           if client and client:supports_method('textDocument/documentHighlight', event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -687,7 +764,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  require 'kickstart.plugins.neo-tree',
+  -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -719,6 +796,24 @@ require('lazy').setup({
     },
   },
 })
+-- Oil.nvim recipes
+-- Declare a global function to retrieve the current directory
+function _G.get_oil_winbar()
+  local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+  local dir = require('oil').get_current_dir(bufnr)
+  if dir then
+    return vim.fn.fnamemodify(dir, ':~')
+  else
+    -- If there is no current directory (e.g. over ssh), just show the buffer name
+    return vim.api.nvim_buf_get_name(0)
+  end
+end
+
+require('oil').setup {
+  win_options = {
+    winbar = '%!v:lua.get_oil_winbar()',
+  },
+}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

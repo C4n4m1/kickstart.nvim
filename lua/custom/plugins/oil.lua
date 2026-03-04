@@ -61,6 +61,7 @@ return {
     -- it will use the mapping at require("oil.actions").<name>
     -- Set to `false` to remove a keymap
     -- See :help oil-actions for a list of all available actions
+    detail = false,
     keymaps = {
       ['<leader>E'] = { 'toggle_float' },
       ['g?'] = { 'actions.show_help', mode = 'n' },
@@ -79,6 +80,18 @@ return {
       ['gx'] = 'actions.open_external',
       ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
       ['g\\'] = { 'actions.toggle_trash', mode = 'n' },
+      ['gd'] = {
+        desc = 'Toggle file detail view',
+        mode = 'n',
+        callback = function()
+          detail = not detail
+          if detail then
+            require('oil').set_columns { 'icon', 'permissions', 'size', 'mtime' }
+          else
+            require('oil').set_columns { 'icon' }
+          end
+        end,
+      },
     },
     -- Set to false to disable all of the above keymaps
     use_default_keymaps = true,

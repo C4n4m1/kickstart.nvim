@@ -10,7 +10,8 @@ return {
     'MunifTanjim/nui.nvim',
   },
   cmd = 'Neotree',
+  opened = false,
   keys = {
-    { '<leader>e', ':Neotree reveal<CR>', desc = '[E]NeoTree reveal' },
+    { '<leader>e', ':Neotree toggle<CR>', desc = '[E]NeoTree toggle' },
   },
 }
