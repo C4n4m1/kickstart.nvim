@@ -11,9 +11,10 @@ vim.g.have_nerd_font = true
 require 'custom.keymap'
 
 -- Transparency
-vim.api.nvim_create_autocmd('VimEnter', {
+vim.api.nvim_create_autocmd({ 'VimEnter', 'ColorScheme' }, {
   callback = function()
     vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'NormalNC', { bg = 'none' })
     -- vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'LineNr', { bg = 'none' })
     vim.api.nvim_set_hl(0, 'Folded', { bg = 'none' })
@@ -25,6 +26,13 @@ vim.api.nvim_create_autocmd('VimEnter', {
     -- Gutter line number colors
     vim.api.nvim_set_hl(0, 'LineNr', { fg = '#505050', bg = 'none' })
     vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#eeeeee', bg = 'none', bold = true })
+
+    -- lsp message ( fidget plugins )
+    vim.api.nvim_set_hl(0, 'FidgetTitle', { bg = 'none' })
+    vim.api.nvim_set_hl(0, 'FidgetTask', { bg = 'none' })
+
+    -- mini ident line color
+    vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { fg = '#707070' })
 
     -- Navic colors for breadcrumbs customization
     local navic_icon_fg = '#808080'
@@ -70,7 +78,7 @@ vim.opt.expandtab = true
 vim.opt.number = true
 vim.opt.relativenumber = true
 
-vim.opt.hlsearch = true
+vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
 -- auto switch for classic line number in insert mode
@@ -369,6 +377,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.resume, { desc = '[S]earch [.]resume' })
       vim.keymap.set('n', '<leader>sr', builtin.oldfiles, { desc = '[S]earch [R]ecent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
+      vim.keymap.set('n', '<C-Space>', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -419,7 +428,18 @@ require('lazy').setup({
       'saghen/blink.cmp',
 
       -- Useful status updates for LSP.
-      { 'j-hui/fidget.nvim', opts = {} },
+      {
+        'j-hui/fidget.nvim',
+        opts = {
+          notification = {
+            window = {
+              winblend = 0, -- 0 = fully opaque bg color, but...
+              border = 'none',
+              normal_hl = 'Comment', -- inherit from a transparent-bg group
+            },
+          },
+        },
+      },
     },
     config = function()
       vim.api.nvim_create_autocmd('LspAttach', {
@@ -725,6 +745,21 @@ require('lazy').setup({
     config = function()
       -- Better Around/Inside textobjects
       require('mini.ai').setup { n_lines = 500 }
+      require('mini.indentscope').setup {
+        draw = {
+          delay = 100,
+          animation = none,
+        },
+        options = {
+          border = 'both',
+
+          -- Whether to use cursor column when computing reference indent.
+          -- Useful to see incremental scopes with horizontal cursor movements.
+          indent_at_cursor = true,
+          try_as_border = true,
+        },
+        symbol = '│',
+      }
     end,
   },
   { -- Highlight, edit, and navigate code
@@ -814,6 +849,36 @@ require('oil').setup {
     winbar = '%!v:lua.get_oil_winbar()',
   },
 }
+
+local vimade_base = {
+  recipe = { 'default', { animate = true } },
+  blocklist = {
+    demo_tutorial = function(win, current)
+      if (win.win_config.relative == '') and (current and current.win_config.relative ~= '') then
+        return false
+      end
+      return true
+    end,
+  },
+}
+
+require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.4 }))
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'namu_prompt',
+  callback = function()
+    require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.8 }))
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufLeave', {
+  pattern = '*',
+  callback = function()
+    if vim.bo.filetype == 'namu_prompt' then
+      require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.4 }))
+    end
+  end,
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

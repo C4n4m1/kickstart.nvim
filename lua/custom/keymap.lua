@@ -1,5 +1,55 @@
 -- keymap for ctrl tab behavior
-vim.keymap.set('n', '<leader><leader>', ':bprevious<CR>', { desc = ' [_] Open previous buffer ' })
+vim.keymap.set('n', '<leader><leader>', '<C-^>', { desc = ' [_] Open last buffer' })
+
+local function get_ordered_buffers()
+  local buffers = vim.api.nvim_list_bufs()
+  table.sort(buffers)
+  local result = {}
+  for i = 1, 9 do
+    if buffers[i] and vim.api.nvim_buf_is_valid(buffers[i]) then
+      result[i] = buffers[i]
+    else
+      result[i] = -1
+    end
+  end
+  return result
+end
+
+local function go_to_buffer(index)
+  local buffers = get_ordered_buffers()
+  local buf_nr = buffers[index]
+  if buf_nr and buf_nr ~= -1 then
+    vim.api.nvim_set_current_buf(buf_nr)
+  end
+end
+
+vim.keymap.set('n', '<M-&>', function()
+  go_to_buffer(1)
+end, { desc = ' [_] Go to buffer 1' })
+vim.keymap.set('n', '<M-é>', function()
+  go_to_buffer(2)
+end, { desc = ' [_] Go to buffer 2' })
+vim.keymap.set('n', '<M-">', function()
+  go_to_buffer(3)
+end, { desc = ' [_] Go to buffer 3' })
+vim.keymap.set('n', "<M-'>", function()
+  go_to_buffer(4)
+end, { desc = ' [_] Go to buffer 4' })
+vim.keymap.set('n', '<M-(>', function()
+  go_to_buffer(5)
+end, { desc = ' [_] Go to buffer 5' })
+vim.keymap.set('n', '<M-->', function()
+  go_to_buffer(6)
+end, { desc = ' [_] Go to buffer 6' })
+vim.keymap.set('n', '<M-è>', function()
+  go_to_buffer(7)
+end, { desc = ' [_] Go to buffer 7' })
+vim.keymap.set('n', '<M-_>', function()
+  go_to_buffer(8)
+end, { desc = ' [_] Go to buffer 8' })
+vim.keymap.set('n', '<M-ç>', function()
+  go_to_buffer(9)
+end, { desc = ' [_] Go to buffer 9' })
 
 -- OIL.NVIM keybind
 vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Parent repository' })
@@ -37,4 +87,20 @@ vim.keymap.set('n', '<leader-k>', '<cmd>lnext<CR>zz')
 vim.keymap.set('n', '<leader-j>', '<cmd>lprev<CR>zz')
 
 -- File explorer
-vim.keymap.set('n', '<leader>e', ':Otree<CR>', { desc = 'Toggle Otree file explorer' })
+vim.keymap.set('n', '<leader>e', function()
+  vim.cmd.Otree()
+end, { desc = 'Toggle Otree file explorer' })
+vim.keymap.set('n', '<C-S-E>', function()
+  vim.cmd.OtreeFocus()
+end, { desc = 'Toggle Otree file explorer' })
+
+local inline_diag_enabled = true
+
+vim.keymap.set('n', '<leader>td', function()
+  inline_diag_enabled = not inline_diag_enabled
+  if inline_diag_enabled then
+    require('tiny-inline-diagnostic').enable()
+  else
+    require('tiny-inline-diagnostic').disable()
+  end
+end, { desc = 'Toggle inline diagnostics' })
