@@ -335,6 +335,7 @@ require('lazy').setup({
         end,
       },
       { 'nvim-telescope/telescope-ui-select.nvim' },
+      { 'jonarrien/telescope-cmdline.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
@@ -356,13 +357,33 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          cmdline = {
+            -- Adjust telescope picker size and layout
+            picker = {
+              layout_config = {
+                width = 80,
+                height = 20,
+              },
+            },
+            -- Adjust your mappings
+            mappings = {
+              complete = '<Tab>',
+              run_selection = '<C-CR>',
+              run_input = '<CR>',
+            },
+            -- Triggers any shell command using overseer.nvim (`:!`)
+            overseer = {
+              enabled = true,
+            },
+          },
         },
       }
 
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
-
+      pcall(require('telescope').load_extension 'cmdline')
+      vim.api.nvim_set_keymap('n', '<C-S-p>', '<cmd>Telescope cmdline<CR>', { noremap = true, desc = 'Cmdline' })
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -377,7 +398,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.resume, { desc = '[S]earch [.]resume' })
       vim.keymap.set('n', '<leader>sr', builtin.oldfiles, { desc = '[S]earch [R]ecent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
-      vim.keymap.set('n', '<C-Space>', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
+      -- vim.keymap.set('n', '<C-Space>', builtin.buffers, { desc = '[S]earch existing [B]uffers' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -387,6 +408,13 @@ require('lazy').setup({
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
+
+      vim.keymap.set('n', '<M-space>', function()
+        builtin.buffers(require('telescope.themes').get_dropdown {
+          winblend = 0,
+          previewer = false,
+        })
+      end, { desc = 'Buffers search' })
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
