@@ -367,11 +367,11 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>f', builtin.find_files, { desc = 'Search [F]iles' })
       vim.keymap.set({ 'n', 'v' }, '<C-p>', builtin.find_files, { desc = 'Search files' })
       vim.keymap.set('n', '<leader>st', builtin.builtin, { desc = '[S]earch Select [T]elescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<leader>g', builtin.live_grep, { desc = 'Search by [G]rep' })
       vim.keymap.set('n', '<C-S-F>', builtin.live_grep, { desc = 'search in projects' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>s.', builtin.resume, { desc = '[S]earch [.]resume' })
@@ -582,12 +582,12 @@ require('lazy').setup({
     cmd = { 'ConformInfo' },
     keys = {
       {
-        '<leader>f',
+        '<leader>cf',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
         mode = '',
-        desc = '[F]ormat buffer',
+        desc = '[C]ode : [F]ormat buffer',
       },
     },
     opts = {
@@ -748,7 +748,7 @@ require('lazy').setup({
       require('mini.indentscope').setup {
         draw = {
           delay = 100,
-          animation = none,
+          animation = require('mini.indentscope').gen_animation.quadratic { duration = 10, unit = 'step' },
         },
         options = {
           border = 'both',
@@ -862,7 +862,7 @@ local vimade_base = {
   },
 }
 
-require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.4 }))
+require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.4 }, { animate = false }))
 
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'namu_prompt',

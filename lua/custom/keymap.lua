@@ -3,11 +3,17 @@ vim.keymap.set('n', '<leader><leader>', '<C-^>', { desc = ' [_] Open last buffer
 
 local function get_ordered_buffers()
   local buffers = vim.api.nvim_list_bufs()
-  table.sort(buffers)
+  local filtered = {}
+  for _, buf in ipairs(buffers) do
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+      table.insert(filtered, buf)
+    end
+  end
+  table.sort(filtered)
   local result = {}
   for i = 1, 9 do
-    if buffers[i] and vim.api.nvim_buf_is_valid(buffers[i]) then
-      result[i] = buffers[i]
+    if filtered[i] then
+      result[i] = filtered[i]
     else
       result[i] = -1
     end

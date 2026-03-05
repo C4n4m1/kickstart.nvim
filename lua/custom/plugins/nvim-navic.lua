@@ -36,7 +36,7 @@ return {
         auto_attach = true,
       },
       highlight = true,
-      lazy_update_context = true,
+      lazy_update_context = false,
       click = true,
       format_text = function(text)
         local max_len = 40
