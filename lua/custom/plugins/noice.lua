@@ -3,6 +3,25 @@ return {
   event = 'VeryLazy',
   opts = function()
     require('noice').setup {
+
+      views = {
+        cmdline_popup = {
+          border = {
+            style = 'none',
+            padding = { 1, 2 },
+          },
+          win_options = {
+            winhighlight = 'Normal:NormalFloat,FloatBorder:NormalFloat',
+          },
+          focusable = true,
+        },
+        -- also apply to the popupmenu that appears below cmdline
+        popupmenu = {
+          win_options = {
+            winhighlight = 'Normal:NoicePopupBg,FloatBorder:NoicePopupBg',
+          },
+        },
+      },
       lsp = {
         -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
         override = {
