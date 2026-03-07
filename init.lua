@@ -925,9 +925,21 @@ vim.api.nvim_create_autocmd('CmdlineEnter', {
 
 vim.api.nvim_create_autocmd('CmdlineLeave', {
   callback = function()
-    require('vimade').setup {}
     vim.cmd 'VimadeUnfadeActive' -- restore it
     vim.cmd 'VimadeRedraw'
+    require('vimade').setup {
+      recipe = { 'default', { animate = false } },
+      fadelevel = 0.3,
+      blocklist = {
+        demo_tutorial = function(win, current)
+          -- current can be nil
+          if (win.win_config.relative == '') and (current and current.win_config.relative ~= '') then
+            return false
+          end
+          return true
+        end,
+      },
+    }
   end,
 })
 -- The line beneath this is called `modeline`. See `:help modeline`
