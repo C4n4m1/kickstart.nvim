@@ -27,12 +27,13 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'ColorScheme' }, {
     vim.api.nvim_set_hl(0, 'LineNr', { fg = '#505050', bg = 'none' })
     vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#eeeeee', bg = 'none', bold = true })
 
-    -- lsp message ( fidget plugins )
-    vim.api.nvim_set_hl(0, 'FidgetTitle', { bg = 'none' })
-    vim.api.nvim_set_hl(0, 'FidgetTask', { bg = 'none' })
-
     -- mini ident line color
     vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { fg = '#707070' })
+
+    -- custom highlights group
+    vim.api.nvim_set_hl(0, 'NoiceCmdlinePopup', { bg = '#252528' })
+    vim.api.nvim_set_hl(0, 'NoicePopup', { bg = '#252528' })
+    vim.api.nvim_set_hl(0, 'NoiceMenu', { bg = '#252528' })
 
     -- Navic colors for breadcrumbs customization
     local navic_icon_fg = '#808080'
@@ -908,5 +909,26 @@ vim.api.nvim_create_autocmd('BufLeave', {
   end,
 })
 
+local vimade_default_fade = 0.4
+
+vim.api.nvim_create_autocmd('CmdlineEnter', {
+  callback = function()
+    require('vimade').setup {
+      recipe = { 'default', { animate = false } },
+      fadelevel = 0.7,
+      blocklist = {},
+      -- ncmode = 'focus',
+    }
+    vim.cmd 'VimadeFadeActive'
+  end,
+})
+
+vim.api.nvim_create_autocmd('CmdlineLeave', {
+  callback = function()
+    require('vimade').setup {}
+    vim.cmd 'VimadeUnfadeActive' -- restore it
+    vim.cmd 'VimadeRedraw'
+  end,
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

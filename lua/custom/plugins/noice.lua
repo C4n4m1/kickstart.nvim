@@ -10,16 +10,21 @@ return {
             style = 'none',
             padding = { 1, 2 },
           },
-          win_options = {
-            winhighlight = 'Normal:NormalFloat,FloatBorder:NormalFloat',
+          -- win_options = {
+          --   winhighlight = 'Normal:NoiceCmdBg,FloatBorder:NormalFloat',
+          -- },
+          position = {
+            row = '20%',
+            col = '50%',
           },
           focusable = true,
         },
+
         -- also apply to the popupmenu that appears below cmdline
         popupmenu = {
-          win_options = {
-            winhighlight = 'Normal:NoicePopupBg,FloatBorder:NoicePopupBg',
-          },
+          -- win_options = {
+          --   winhighlight = 'Normal:NoicePopupBg,FloatBorder:NoicePopupBg',
+          -- },
         },
       },
       lsp = {
