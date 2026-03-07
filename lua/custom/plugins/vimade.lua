@@ -2,7 +2,7 @@ return {
   'tadaa/vimade',
   opts = {
     recipe = { 'default', { animate = false } },
-    fadelevel = 0.3,
+    fadelevel = 0.4,
     blocklist = {
       demo_tutorial = function(win, current)
         -- current can be nil

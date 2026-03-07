@@ -101,6 +101,16 @@ vim.keymap.set('n', '<C-S-E>', function()
 end, { desc = 'Toggle Otree file explorer' })
 
 local inline_diag_enabled = true
+local annoying_diag_filetype = { 'qml' }
+
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  callback = function()
+    if vim.tbl_contains(annoying_diag_filetype, vim.bo.filetype) then
+      inline_diag_enabled = false
+      require('tiny-inline-diagnostic').disable()
+    end
+  end,
+})
 
 vim.keymap.set('n', '<leader>td', function()
   inline_diag_enabled = not inline_diag_enabled

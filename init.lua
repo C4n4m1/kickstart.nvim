@@ -4,10 +4,11 @@ vim.g.maplocalleader = ' '
 -- Correct way to set termguicolors in Lua
 vim.opt.termguicolors = true
 vim.g.have_nerd_font = true
+vim.opt.swapfile = false
 
 -- See `:help vim.opt`
 --  border on floating window
--- vim.opt.winborder = 'rounded'
+vim.opt.winborder = 'none'
 require 'custom.keymap'
 
 -- Transparency
@@ -201,7 +202,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function()
-    vim.highlight.on_yank()
+    vim.hl.on_yank()
   end,
 })
 
@@ -342,18 +343,55 @@ require('lazy').setup({
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
-      -- [[ Configure Telescope ]]
-      -- See `:help telescope` and `:help telescope.setup()`
       require('telescope').setup {
-        -- You can put your default mappings / updates / etc. in here
-        --  All the info you're looking for is in `:help telescope.setup()`
-        --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+        -- [[ Configure Telescope ]]
+        -- See `:help telescope` and `:help telescope.setup()`
+        defaults = {
+          mappings = {
+            i = { ['<Esc>'] = 'close', ['<M-p>'] = require('telescope.actions.layout').toggle_preview },
+          },
+        },
+        pickers = {
+          buffers = {
+            mappings = {
+              i = {
+                ['<c-d>'] = require('telescope.actions').delete_buffer + require('telescope.actions').move_to_top,
+                ['<c-h>'] = function(prompt_bufnr)
+                  local action_state = require 'telescope.actions.state'
+                  local entry = action_state.get_selected_entry()
+                  if entry and entry.bufnr then
+                    require('telescope.actions').close(prompt_bufnr)
+                    vim.cmd('vert lefta sb' .. tostring(entry.bufnr))
+                  end
+                end,
+                ['<c-j>'] = function(prompt_bufnr)
+                  local action_state = require 'telescope.actions.state'
+                  local entry = action_state.get_selected_entry()
+                  if entry and entry.bufnr then
+                    require('telescope.actions').close(prompt_bufnr)
+                    vim.cmd('sb ' .. tostring(entry.bufnr))
+                  end
+                end,
+                ['<c-k>'] = function(prompt_bufnr)
+                  local action_state = require 'telescope.actions.state'
+                  local entry = action_state.get_selected_entry()
+                  if entry and entry.bufnr then
+                    require('telescope.actions').close(prompt_bufnr)
+                    vim.cmd('sba ' .. tostring(entry.bufnr))
+                  end
+                end,
+                ['<c-l>'] = function(prompt_bufnr)
+                  local action_state = require 'telescope.actions.state'
+                  local entry = action_state.get_selected_entry()
+                  if entry and entry.bufnr then
+                    require('telescope.actions').close(prompt_bufnr)
+                    vim.cmd('vert sb' .. tostring(entry.bufnr))
+                  end
+                end,
+              },
+            },
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -375,6 +413,23 @@ require('lazy').setup({
             -- Triggers any shell command using overseer.nvim (`:!`)
             overseer = {
               enabled = true,
+            },
+          },
+          undo = {
+            mappings = {
+              i = {
+                ['<cr>'] = require('telescope-undo.actions').yank_additions,
+                ['<S-cr>'] = require('telescope-undo.actions').yank_deletions,
+                ['<C-cr>'] = require('telescope-undo.actions').restore,
+                -- alternative defaults, for users whose terminals do questionable things with modified <cr>
+                ['<C-y>'] = require('telescope-undo.actions').yank_deletions,
+                ['<C-r>'] = require('telescope-undo.actions').restore,
+              },
+              n = {
+                ['y'] = require('telescope-undo.actions').yank_additions,
+                ['Y'] = require('telescope-undo.actions').yank_deletions,
+                ['u'] = require('telescope-undo.actions').restore,
+              },
             },
           },
         },
@@ -891,7 +946,8 @@ local vimade_base = {
   },
 }
 
-require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.4 }, { animate = false }))
+local vimade_default_fade = 0.4
+require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = vimade_default_fade }, { animate = false }))
 
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'namu_prompt',
@@ -904,12 +960,10 @@ vim.api.nvim_create_autocmd('BufLeave', {
   pattern = '*',
   callback = function()
     if vim.bo.filetype == 'namu_prompt' then
-      require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = 0.4 }))
+      require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = vimade_default_fade }))
     end
   end,
 })
-
-local vimade_default_fade = 0.4
 
 vim.api.nvim_create_autocmd('CmdlineEnter', {
   callback = function()
@@ -929,7 +983,7 @@ vim.api.nvim_create_autocmd('CmdlineLeave', {
     vim.cmd 'VimadeRedraw'
     require('vimade').setup {
       recipe = { 'default', { animate = false } },
-      fadelevel = 0.3,
+      fadelevel = vimade_default_fade,
       blocklist = {
         demo_tutorial = function(win, current)
           -- current can be nil
@@ -942,5 +996,6 @@ vim.api.nvim_create_autocmd('CmdlineLeave', {
     }
   end,
 })
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
