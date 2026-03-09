@@ -161,13 +161,6 @@ end)
 
 vim.cmd 'set statusline=%!v:lua.Status_line()'
 
-vim.cmd [[
-  augroup Statusline
-    au!
-    au WinEnter,BufEnter * setlocal cursorline
-    au WinLeave,BufLeave * setlocal nocursorline
-]]
-
 -- set colors for each statusline components
 
 local group_styles = {

@@ -58,7 +58,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
                 local entry = action_state.get_selected_entry()
                 if entry and entry.bufnr then
                   require('telescope.actions').close(prompt_bufnr)
-                  vim.cmd('sba ' .. tostring(entry.bufnr))
+                  vim.cmd('lefta sb ' .. tostring(entry.bufnr))
                 end
               end,
               ['<c-l>'] = function(prompt_bufnr)
@@ -67,6 +67,14 @@ return { -- Fuzzy Finder (files, lsp, etc)
                 if entry and entry.bufnr then
                   require('telescope.actions').close(prompt_bufnr)
                   vim.cmd('vert sb' .. tostring(entry.bufnr))
+                end
+              end,
+              ['<S-cr>'] = function(prompt_bufnr)
+                local action_state = require 'telescope.actions.state'
+                local entry = action_state.get_selected_entry()
+                if entry and entry.bufnr then
+                  require('telescope.actions').close(prompt_bufnr)
+                  vim.cmd(':only | b ' .. tostring(entry.bufnr))
                 end
               end,
             },

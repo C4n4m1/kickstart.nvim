@@ -16,7 +16,7 @@ return {
       hijack_netrw = true,
       show_hidden = true,
       show_ignore = false,
-      cursorline = true,
+      cursorline = false,
       focus_on_enter = true,
       open_on_left = false,
       git_signs = true,
@@ -100,7 +100,7 @@ return {
         width_ratio = 0.4,
         height_ratio = 0.7,
         padding = 2,
-        cursorline = true,
+        cursorline = false,
         border = 'rounded',
       },
     }

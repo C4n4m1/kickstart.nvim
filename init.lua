@@ -9,15 +9,10 @@ vim.opt.termguicolors = true
 vim.g.have_nerd_font = true
 vim.opt.swapfile = false
 
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
-
 vim.opt.number = true
 vim.opt.relativenumber = true
 
-vim.opt.hlsearch = false
+vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
 -- auto switch for classic line number in insert mode
@@ -50,8 +45,7 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
-vim.opt.mouse = 'a'
-
+vim.opt.mouse = 'nvchr'
 vim.opt.showmode = false
 
 -- Sync clipboard between OS and Neovim.
@@ -79,7 +73,7 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 8
 
@@ -150,12 +144,16 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'ColorScheme' }, {
     vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#eeeeee', bg = 'none', bold = true })
 
     -- mini ident line color
-    vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { fg = '#707070' })
+    vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { fg = '#606060' })
 
     -- custom highlights group
     vim.api.nvim_set_hl(0, 'NoiceCmdlinePopup', { bg = '#252528' })
     vim.api.nvim_set_hl(0, 'NoicePopup', { bg = '#252528' })
     vim.api.nvim_set_hl(0, 'NoiceMenu', { bg = '#252528' })
+
+    -- Blink cmp color tweaks
+    vim.api.nvim_set_hl(0, 'BlinkCmpScrollBarGutter', { bg = '#161617' })
+    -- vim.api.nvim_set_hl(0, 'BlinkCmpKind', { bg = '#161617' })
 
     navic_hl()
   end,
@@ -189,7 +187,7 @@ require('lazy').setup({
   require 'kickstart.plugins.lsp-config',
   require 'kickstart.plugins.lazy-dev',
 
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.colorscheme',
@@ -267,7 +265,7 @@ vim.api.nvim_create_autocmd('CmdlineEnter', {
 
 vim.api.nvim_create_autocmd('CmdlineLeave', {
   callback = function()
-    vim.cmd 'VimadeUnfadeActive' -- restore it
+    vim.cmd 'VimadeUnfadeActive'
     vim.cmd 'VimadeRedraw'
     require('vimade').setup(vim.tbl_extend('force', vimade_base, { fadelevel = vimade_default_fade }))
   end,

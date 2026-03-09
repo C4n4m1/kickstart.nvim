@@ -58,13 +58,9 @@ return {
             {
               'navic',
               color_correction = 'static',
-              fmt = function(str)
-                local max_len = 100
-                if #str > max_len then
-                  return '...' .. str:sub(-(max_len - 3))
-                end
-              end,
-              navic_opts = {},
+              navic_opts = {
+                depth_limit = 6,
+              },
             },
           },
           lualine_x = { 'filename' },
