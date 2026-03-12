@@ -1,3 +1,5 @@
+-- :TODO: Add autocmd to show lualine while exiting alpha buffer usng its filetype
+--
 -- OPTIONS
 -- See `:help vim.opt`
 --  border on floating window
@@ -73,7 +75,7 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
-vim.opt.cursorline = false
+vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 8
 
@@ -142,14 +144,15 @@ vim.api.nvim_create_autocmd({ 'VimEnter', 'ColorScheme' }, {
     -- Gutter line number colors
     vim.api.nvim_set_hl(0, 'LineNr', { fg = '#505050', bg = 'none' })
     vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#eeeeee', bg = 'none', bold = true })
+    vim.api.nvim_set_hl(0, 'CursorLine', { bg = 'none' })
 
     -- mini ident line color
     vim.api.nvim_set_hl(0, 'MiniIndentscopeSymbol', { fg = '#606060' })
 
     -- custom highlights group
-    vim.api.nvim_set_hl(0, 'NoiceCmdlinePopup', { bg = '#252528' })
-    vim.api.nvim_set_hl(0, 'NoicePopup', { bg = '#252528' })
-    vim.api.nvim_set_hl(0, 'NoiceMenu', { bg = '#252528' })
+    vim.api.nvim_set_hl(0, 'NoiceCmdlinePopup', { bg = '#303033' })
+    vim.api.nvim_set_hl(0, 'NoicePopup', { bg = '#303033' })
+    vim.api.nvim_set_hl(0, 'NoiceMenu', { bg = '#303033' })
 
     -- Blink cmp color tweaks
     vim.api.nvim_set_hl(0, 'BlinkCmpScrollBarGutter', { bg = '#161617' })

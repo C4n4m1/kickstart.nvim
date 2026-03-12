@@ -103,6 +103,13 @@ return {
             name = 'html-css',
             module = 'blink.compat.source',
           },
+          snippets = {
+            opts = {
+              extended_filetypes = {
+                php = { 'html', 'css' },
+              },
+            },
+          },
         },
       },
 

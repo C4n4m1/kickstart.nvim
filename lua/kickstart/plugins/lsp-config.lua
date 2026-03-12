@@ -6,7 +6,7 @@ return {
     -- Mason must be loaded before its dependents so we need to set it up here.
     -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
     { 'mason-org/mason.nvim', opts = {} },
-    'mason-org/mason-lspconfig.nvim',
+    { 'mason-org/mason-lspconfig.nvim' },
     'WhoIsSethDaniel/mason-tool-installer.nvim',
     'saghen/blink.cmp',
 
@@ -88,6 +88,7 @@ return {
       clangd = {},
       -- gopls = {},
       pyright = {},
+      qmlls = {},
       jdtls = {},
       lua_ls = {
         settings = {

@@ -46,7 +46,7 @@ return {
         default_animation = 'fade',
       },
       search = {
-        enabled = false,
+        enabled = true,
         default_animation = 'pulse',
 
         -- Keys to navigate to the next match
