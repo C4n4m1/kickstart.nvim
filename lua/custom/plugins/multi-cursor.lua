@@ -22,6 +22,9 @@ return {
     end)
 
     -- Add or skip adding a new cursor by matching word/selection
+    set({ 'n', 'x', 'v' }, 'ga', function()
+      mc.matchAllAddCursors()
+    end)
     set({ 'n', 'x' }, 'gl', function()
       mc.matchAddCursor(1)
     end)

@@ -17,6 +17,11 @@ vim.opt.relativenumber = true
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
+local arg = vim.fn.argv(0)
+if arg and arg ~= '' and vim.fn.isdirectory(arg) == 1 then
+  vim.cmd.cd(arg)
+end
+
 -- auto switch for classic line number in insert mode
 vim.api.nvim_create_autocmd({ 'InsertEnter', 'InsertLeave' }, {
   pattern = '*',

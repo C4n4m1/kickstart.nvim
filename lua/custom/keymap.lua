@@ -5,18 +5,14 @@ local function get_ordered_buffers()
   local buffers = vim.api.nvim_list_bufs()
   local filtered = {}
   for _, buf in ipairs(buffers) do
-    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype ~= 'terminal' and vim.bo[buf].buflisted then
       table.insert(filtered, buf)
     end
   end
   table.sort(filtered)
   local result = {}
   for i = 1, 9 do
-    if filtered[i] then
-      result[i] = filtered[i]
-    else
-      result[i] = -1
-    end
+    result[i] = filtered[i] or -1
   end
   return result
 end
@@ -136,3 +132,24 @@ vim.keymap.set('n', '<leader>td', function()
     require('tiny-inline-diagnostic').disable()
   end
 end, { desc = 'Toggle inline diagnostics' })
+
+local term = require 'custom.terminal'
+
+-- Generic toggle (uses whatever mode was last set)
+vim.keymap.set({ 'n', 't' }, '<M-t>', function()
+  term.toggle()
+end, { desc = 'Toggle terminal' })
+-- Force a specific mode (also switches if the other mode is currently open)
+vim.keymap.set('n', '<leader>tf', function()
+  term.toggle { mode = 'float' }
+end, { desc = 'Terminal (float)' })
+vim.keymap.set('n', '<leader>tv', function()
+  term.toggle { mode = 'vsplit' }
+end, { desc = 'Terminal (vsplit)' })
+vim.keymap.set('n', '<leader>ts', function()
+  term.toggle { mode = 'hsplit' }
+end, { desc = 'Terminal (hsplit)' })
+-- Fullscreen toggle while open
+vim.keymap.set({ 'n', 't' }, '<C-f>', function()
+  term.toggle_fullscreen()
+end, { desc = 'Terminal fullscreen' })

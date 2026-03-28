@@ -53,17 +53,27 @@ return {
         },
         sections = {
           lualine_a = { 'mode' },
-          lualine_b = { 'branch', 'diff', 'diagnostics' },
+          lualine_b = { { 'branch', icon = '' }, 'diff', 'diagnostics' },
           lualine_c = {
             {
               'navic',
+              -- max_length = vim.o.columns * 0.1,
               color_correction = 'static',
               navic_opts = {
                 depth_limit = 6,
               },
             },
           },
-          lualine_x = { 'filename' },
+          lualine_x = {
+            {
+              'filename',
+              symbols = {
+                modified = ' ●', -- Text to show when the buffer is modified
+                alternate_file = '#', -- Text to show to identify the alternate file
+                directory = '', -- Text to show when the buffer is a directory
+              },
+            },
+          },
           lualine_y = { 'progress', 'location' },
           lualine_z = { 'filetype' },
         },

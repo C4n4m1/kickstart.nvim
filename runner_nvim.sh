@@ -39,6 +39,8 @@ elif [[ "$extension" == "php" ]]; then
     xdg-open "http://localhost${full_path##/srv/http}"
 elif [[ "$extension" == "html" ]]; then
     xdg-open "$full_path"
+elif [[ "$extension" == "cs" ]]; then
+    dotnet run "$full_path"
 else
     echo "no"
 fi
