@@ -45,11 +45,11 @@ return {
       },
       routes = {
         -- Skip yank notifications (e.g. "X lines yanked")
-        { filter = { event = 'msg_show', find = 'line' }, opts = { skip = true } },
+        { filter = { event = 'msg_show', find = 'yanked' }, opts = { skip = true } },
         -- Skip file save notifications (e.g. "file.lua 42L, 1.2K written")
         { filter = { event = 'msg_show', find = 'written' }, opts = { skip = true } },
         -- Skip generic empty messages
-        { filter = { event = 'msg_show', kind = '' }, opts = { skip = true } },
+        -- { filter = { event = 'msg_show', kind = '' }, opts = { skip = true } },
       },
     }
   end,
