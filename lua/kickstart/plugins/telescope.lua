@@ -238,13 +238,6 @@ return {
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
-      vim.keymap.set('n', '<M-space>', function()
-        builtin.buffers(require('telescope.themes').get_dropdown {
-          winblend = 0,
-          previewer = false,
-        })
-      end, { desc = 'Buffers search' })
-
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()

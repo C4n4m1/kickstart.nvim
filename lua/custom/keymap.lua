@@ -1,30 +1,226 @@
 -- keymap for ctrl tab behavior
 vim.keymap.set('n', '<leader><leader>', '<C-^>', { desc = ' [_] Open last buffer' })
+local term = require 'custom.terminal'
 
-local function get_ordered_buffers()
+local function get_ordered_buffers(terminals)
+  terminals = terminals or false
   local buffers = vim.api.nvim_list_bufs()
   local filtered = {}
   for _, buf in ipairs(buffers) do
-    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype ~= 'terminal' and vim.bo[buf].buflisted then
-      table.insert(filtered, buf)
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+      if terminals then
+        if vim.bo[buf].buftype == 'terminal' then
+          table.insert(filtered, buf)
+        end
+      else
+        if vim.bo[buf].buftype ~= 'terminal' then
+          table.insert(filtered, buf)
+        end
+      end
     end
   end
   table.sort(filtered)
-  local result = {}
-  for i = 1, 9 do
-    result[i] = filtered[i] or -1
-  end
-  return result
+  return filtered
 end
 
-local function go_to_buffer(index)
-  local buffers = get_ordered_buffers()
+local function go_to_buffer(index, terminal)
+  terminal = terminal or false
+  local buffers = get_ordered_buffers(terminal)
   local buf_nr = buffers[index]
-  if buf_nr and buf_nr ~= -1 then
+  if buf_nr then
     vim.api.nvim_set_current_buf(buf_nr)
   end
+  if terminal then
+    term.state.buf = buffers[index]
+  end
 end
 
+-- vim.keymap.set('n', '<M-space>', function()
+--   require('telescope.builtin').buffers(require('telescope.themes').get_dropdown {
+--     winblend = 0,
+--     previewer = false,
+--   })
+-- end, { desc = 'Buffers search' })
+
+vim.keymap.set('n', '<M-space>', function()
+  local pickers = require 'telescope.pickers'
+  local finders = require 'telescope.finders'
+  local conf = require('telescope.config').values
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+  local themes = require 'telescope.themes'
+  local entry_display = require 'telescope.pickers.entry_display'
+
+  local buffers = get_ordered_buffers()
+  local buffs_with_infos = {}
+  for _, buf_nb in ipairs(buffers) do
+    local element = {
+      buf_nb = buf_nb,
+      info = vim.fn.getbufinfo(buf_nb)[1],
+    }
+    table.insert(buffs_with_infos, element)
+  end
+
+  local function editor_picker()
+    local opts = themes.get_dropdown(opts or {})
+    pickers
+      .new(opts, {
+        prompt_title = 'Editor buffers',
+        finder = finders.new_table {
+          results = buffs_with_infos,
+          entry_maker = function(entry)
+            local info = entry.info or {}
+            local name = (info.name and info.name ~= '') and info.name or '[No Name]'
+            local short = vim.fn.fnamemodify(name, ':~:.')
+            local basename = vim.fn.fnamemodify(short, ':t')
+            local dir = vim.fn.fnamemodify(short, ':h')
+            local dir_display = (dir == '.' or dir == '') and '' or (dir .. '/')
+
+            local displayer = entry_display.create {
+              separator = ' ',
+              items = {
+                { width = 3 }, -- buffer number
+                { width = #dir_display }, -- directory prefix
+                { remaining = true }, -- basename
+              },
+            }
+
+            return {
+              value = entry.buf_nb,
+              ordinal = short,
+              display = function()
+                return displayer {
+                  { tostring(entry.buf_nb), 'TelescopeResultsNumber' }, -- colored number
+                  { dir_display, 'TelescopeResultsComment' }, -- dim dir
+                  { basename, 'TelescopeResultsIdentifier' }, -- bright basename
+                }
+              end,
+            }
+          end,
+        },
+        sorter = conf.generic_sorter(opts),
+        attach_mappings = function(prompt_bufnr, _)
+          actions.select_default:replace(function()
+            actions.close(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            vim.api.nvim_win_set_buf(0, selection.value) -- set buf in current window
+          end)
+          return true -- keep all other default mappings
+        end,
+      })
+      :find()
+  end
+  editor_picker()
+end, { desc = 'Buffers search' })
+
+vim.keymap.set('t', '<M-space>', function()
+  local pickers = require 'telescope.pickers'
+  local finders = require 'telescope.finders'
+  local conf = require('telescope.config').values
+  local actions = require 'telescope.actions'
+  local action_state = require 'telescope.actions.state'
+  local themes = require 'telescope.themes'
+  local entry_display = require 'telescope.pickers.entry_display'
+  local function get_term_process(buf_nb)
+    local shell_pid = vim.b[buf_nb].terminal_job_pid
+    if not shell_pid then
+      return '?'
+    end
+
+    -- read children directly from /proc, no subprocess
+    local f = io.open('/proc/' .. shell_pid .. '/task/' .. shell_pid .. '/children', 'r')
+    local child_pid = nil
+    if f then
+      local line = f:read '*l'
+      f:close()
+      child_pid = line and line:match '^%s*(%d+)'
+    end
+
+    local pid = child_pid or shell_pid
+    local cf = io.open('/proc/' .. pid .. '/comm', 'r')
+    if not cf then
+      return '?'
+    end
+    local name = cf:read '*l'
+    cf:close()
+    return name or '?'
+  end
+
+  local terminal = true
+  local buffers = get_ordered_buffers(terminal)
+  local buffs_with_infos = {}
+  for _, buf_nb in ipairs(buffers) do
+    local element = {
+      buf_nb = buf_nb,
+      info = vim.fn.getbufinfo(buf_nb)[1],
+    }
+    table.insert(buffs_with_infos, element)
+  end
+
+  local function editor_picker()
+    local opts = themes.get_dropdown(opts or {})
+    pickers
+      .new(opts, {
+        prompt_title = 'Terminal buffers',
+        finder = finders.new_table {
+          results = buffs_with_infos,
+          entry_maker = function(entry)
+            local process_name = get_term_process(entry.buf_nb)
+
+            local displayer = entry_display.create {
+              separator = ' ',
+              items = {
+                { width = 3 },
+                { remaining = true },
+              },
+            }
+
+            return {
+              value = entry.buf_nb,
+              ordinal = process_name,
+              display = function()
+                return displayer {
+                  { tostring(entry.buf_nb), 'TelescopeResultsNumber' },
+                  { process_name, 'TelescopeResultsIdentifier' },
+                }
+              end,
+            }
+          end,
+        },
+        sorter = conf.generic_sorter(opts),
+        -- after attach_mappings, inside pickers.new opts:
+        attach_mappings = function(prompt_bufnr, map)
+          map('i', '<Esc>', function()
+            actions.close(prompt_bufnr)
+            vim.schedule(function()
+              vim.wo.number = false
+              vim.wo.relativenumber = false
+              if vim.bo.buftype == 'terminal' then
+                vim.cmd 'startinsert'
+              end
+            end)
+          end)
+          actions.select_default:replace(function()
+            actions.close(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            vim.api.nvim_win_set_buf(0, selection.value)
+            vim.schedule(function()
+              vim.wo.number = false
+              vim.wo.relativenumber = false
+              if vim.bo.buftype == 'terminal' then
+                vim.cmd 'startinsert'
+              end
+            end)
+          end)
+          return true
+        end,
+      })
+      :find()
+  end
+  editor_picker()
+end, { desc = 'Terminal search' })
+
+-- Buffers navigation
 vim.keymap.set('n', '<M-&>', function()
   go_to_buffer(1)
 end, { desc = ' [_] Go to buffer 1' })
@@ -133,8 +329,6 @@ vim.keymap.set('n', '<leader>td', function()
   end
 end, { desc = 'Toggle inline diagnostics' })
 
-local term = require 'custom.terminal'
-
 -- Generic toggle (uses whatever mode was last set)
 vim.keymap.set({ 'n', 't' }, '<M-t>', function()
   term.toggle()
@@ -149,7 +343,39 @@ end, { desc = 'Terminal (vsplit)' })
 vim.keymap.set('n', '<leader>ts', function()
   term.toggle { mode = 'hsplit' }
 end, { desc = 'Terminal (hsplit)' })
+vim.keymap.set({ 'n', 't' }, '<M-n>', function()
+  term.new()
+end, { desc = 'Terminal (hsplit)' })
 -- Fullscreen toggle while open
 vim.keymap.set({ 'n', 't' }, '<C-f>', function()
   term.toggle_fullscreen()
 end, { desc = 'Terminal fullscreen' })
+
+-- Terminal navigation
+vim.keymap.set('t', '<M-&>', function()
+  go_to_buffer(1, true)
+end, { desc = ' [_] Go to terminal 1' })
+vim.keymap.set('t', '<M-é>', function()
+  go_to_buffer(2, true)
+end, { desc = ' [_] Go to terminal 2' })
+vim.keymap.set('t', '<M-">', function()
+  go_to_buffer(3, true)
+end, { desc = ' [_] Go to terminal 3' })
+vim.keymap.set('t', "<M-'>", function()
+  go_to_buffer(4, true)
+end, { desc = ' [_] Go to terminal 4' })
+vim.keymap.set('t', '<M-(>', function()
+  go_to_buffer(5, true)
+end, { desc = ' [_] Go to terminal 5' })
+vim.keymap.set('t', '<M-->', function()
+  go_to_buffer(6, true)
+end, { desc = ' [_] Go to terminal 6' })
+vim.keymap.set('t', '<M-è>', function()
+  go_to_buffer(7, true)
+end, { desc = ' [_] Go to terminal 7' })
+vim.keymap.set('t', '<M-_>', function()
+  go_to_buffer(8, true)
+end, { desc = ' [_] Go to terminal 8' })
+vim.keymap.set('t', '<M-ç>', function()
+  go_to_buffer(9, true)
+end, { desc = ' [_] Go to terminal 9' })
