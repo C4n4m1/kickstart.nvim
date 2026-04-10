@@ -99,13 +99,38 @@ vim.keymap.set('n', '<M-space>', function()
           end,
         },
         sorter = conf.generic_sorter(opts),
-        attach_mappings = function(prompt_bufnr, _)
+        attach_mappings = function(prompt_bufnr, map)
+          map('i', '<C-d>', function()
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            if not selection then
+              return
+            end
+            vim.api.nvim_buf_delete(selection.value, { force = false }) -- false = respect unsaved warning
+            picker:delete_selection(function(sel)
+              return sel.value == selection.value
+            end)
+          end)
+
+          map('n', '<C-d>', function()
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            if not selection then
+              return
+            end
+            vim.api.nvim_buf_delete(selection.value, { force = false })
+            picker:delete_selection(function(sel)
+              return sel.value == selection.value
+            end)
+          end)
+
           actions.select_default:replace(function()
             actions.close(prompt_bufnr)
             local selection = action_state.get_selected_entry()
-            vim.api.nvim_win_set_buf(0, selection.value) -- set buf in current window
+            vim.api.nvim_win_set_buf(0, selection.value)
           end)
-          return true -- keep all other default mappings
+
+          return true
         end,
       })
       :find()
@@ -210,6 +235,17 @@ vim.keymap.set('t', '<M-space>', function()
               if vim.bo.buftype == 'terminal' then
                 vim.cmd 'startinsert'
               end
+            end)
+          end)
+          map('n', '<C-d>', function()
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            local selection = action_state.get_selected_entry()
+            if not selection then
+              return
+            end
+            vim.api.nvim_buf_delete(selection.value, { force = true })
+            picker:delete_selection(function(sel)
+              return sel.value == selection.value
             end)
           end)
           return true
