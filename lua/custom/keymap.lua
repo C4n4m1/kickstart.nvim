@@ -289,8 +289,12 @@ end, { desc = ' [_] Go to buffer 9' })
 vim.keymap.set('n', '-', '<cmd>Oil<CR>', { desc = 'Parent repository' })
 
 -- The famous runner to execute any script with just one keypam !
-vim.keymap.set('n', '<leader><CR>', ':terminal /home/credo/runner.sh % "%:p" <CR>', { desc = ' run code' })
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+vim.keymap.set('n', '<leader><CR>', function()
+  local file = vim.fn.expand '%'
+  local filepath = vim.fn.expand '%:p'
+  term.new { cmd = '/home/credo/runner.sh ' .. file .. ' "' .. filepath .. '"' }
+end, { desc = ' run code' })
 
 -- More LSP keymaps --
 vim.keymap.set('n', 'cd', vim.lsp.buf.rename, { desc = 'LSP Rename Symbol' })

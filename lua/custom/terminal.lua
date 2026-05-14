@@ -5,7 +5,7 @@ local M = {}
 M.state = {
   buf = nil,
   win = nil,
-  mode = 'vsplit', -- "float" | "vsplit" | "hsplit"
+  mode = 'hsplit', -- "float" | "vsplit" | "hsplit"
   fullscreen = false,
 }
 
@@ -67,30 +67,30 @@ local function open_win()
   vim.cmd 'startinsert'
 end
 
-function M.new()
+function M.new(opts)
+  local cmd = (opts and opts.cmd) or ''
+  local term_cmd = cmd ~= '' and ('term ' .. cmd) or 'term'
   if not win_valid() then
     if M.state.mode == 'float' then
       M.state.buf = vim.api.nvim_create_buf(false, false)
       M.state.win = vim.api.nvim_open_win(M.state.buf, true, float_config(M.state.fullscreen))
-      vim.cmd 'term'
+      vim.cmd(term_cmd)
     elseif M.state.mode == 'vsplit' then
       vim.cmd 'botright vsplit'
       M.state.win = vim.api.nvim_get_current_win()
-      vim.cmd 'term'
+      vim.cmd(term_cmd)
       local w = M.state.fullscreen and vim.o.columns or math.floor(vim.o.columns * 0.40)
       vim.api.nvim_win_set_width(M.state.win, w)
     elseif M.state.mode == 'hsplit' then
       vim.cmd 'botright split'
       M.state.win = vim.api.nvim_get_current_win()
-      vim.cmd 'term'
+      vim.cmd(term_cmd)
       local h = M.state.fullscreen and (vim.o.lines - 2) or math.floor(vim.o.lines * 0.35)
       vim.api.nvim_win_set_height(M.state.win, h)
     end
   else
-    vim.cmd 'term'
+    vim.cmd(term_cmd)
   end
-
-  -- bufs.insert(M.state.buf)
 end
 
 function M.toggle(opts)
