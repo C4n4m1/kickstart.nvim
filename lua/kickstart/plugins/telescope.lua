@@ -188,7 +188,7 @@ return {
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension 'cmdline')
-      vim.api.nvim_set_keymap('n', '<C-S-p>', '<cmd>Telescope cmdline<CR>', { noremap = true, desc = 'Cmdline' })
+      -- vim.api.nvim_set_keymap('n', '<C-S-p>', '<cmd>Telescope cmdline<CR>', { noremap = true, desc = 'Cmdline' })
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set({ 'n', 'v' }, '<C-p>', function()
